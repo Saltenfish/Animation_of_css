@@ -10,8 +10,14 @@
 body{background:#0a0a0f;font-family:'Courier New',monospace;color:#fff;padding:24px 16px;}
 h1{text-align:center;font-size:22px;letter-spacing:6px;text-transform:uppercase;margin-bottom:4px;}
 .sub{text-align:center;font-size:11px;letter-spacing:3px;color:#444;margin-bottom:32px;}
+.notice {
+    font-size: 14px;      /* 字體放大，也可以用 20px */
+    color: #f0d575;         /* 亮色調 (這裡以亮藍色為例，可自訂) */
+    font-weight: bold;      /* 加粗讓效果更明顯 */
+    margin-top: 5px;       /* 增加一點間距 */
+}
 .cat{margin-bottom:32px;}
-.cat-title{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#555;margin-bottom:10px;padding-left:10px;border-left:2px solid #333;}
+.cat-title{font-size:15px;letter-spacing:3px;text-transform:uppercase;color:#fff;margin-bottom:10px;padding-left:12px;border-left:3px solid #555;font-weight:700;}
 
 /* 2-col grid of cards on desktop */
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
@@ -63,16 +69,19 @@ pre::-webkit-scrollbar-thumb{background:#252535;border-radius:2px;}
 
 <h1>Animate.css</h1>
 <p class="sub">全動畫效果展示 · v4.1.1</p>
+<p class="sub notice">備註：'animate__infinite'是為了無限的循環 'animate__slower'是讓中間能稍微停頓</p>
 
 <script>
 var CDN='https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
+var rawCodes=[];
 
 function doCopy(btn){
-  var raw=btn.parentElement.querySelector('pre').getAttribute('data-code');
+  var idx=parseInt(btn.getAttribute('data-idx'));
+  var text=rawCodes[idx];
   function ok(){btn.textContent='✓ 已複製';btn.classList.add('ok');setTimeout(function(){btn.textContent='複製';btn.classList.remove('ok');},1800);}
   if(navigator.clipboard&&window.isSecureContext){
-    navigator.clipboard.writeText(raw).then(ok).catch(function(){fb(raw,ok);});
-  }else{fb(raw,ok);}
+    navigator.clipboard.writeText(text).then(ok).catch(function(){fb(text,ok);});
+  }else{fb(text,ok);}
 }
 function fb(text,ok){
   var ta=document.createElement('textarea');
@@ -84,8 +93,12 @@ function fb(text,ok){
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 function buildCard(cc,animClasses,zh,desc,use,bg,color,txt){
-  var raw='<link rel="stylesheet" href="'+CDN+'"/><div style="background:'+bg+';padding:6px 0;text-align:center;font-family:sans-serif;"><span class="animate__animated '+animClasses+'" style="display:inline-block;color:'+color+';font-weight:900;font-size:14px;letter-spacing:2px;">'+txt+'</span></div>';
-  var hl='<span class="ht">&lt;link</span> <span class="ha">rel</span>=<span class="hv">"stylesheet"</span> <span class="ha">href</span>=<span class="hv">"'+esc(CDN)+'"</span><span class="ht">/&gt;&lt;div</span> <span class="ha">style</span>=<span class="hv">"background:<span class="hk">'+bg+'</span>;padding:6px 0;text-align:center;font-family:sans-serif;"</span><span class="ht">&gt;&lt;span</span> <span class="ha">class</span>=<span class="hv">"animate__animated <span class="hn">'+esc(animClasses)+'"</span></span> <span class="ha">style</span>=<span class="hv">"display:inline-block;color:<span class="hk">'+color+'</span>;font-weight:900;font-size:14px;letter-spacing:2px;"</span><span class="ht">&gt;</span>'+esc(txt)+'<span class="ht">&lt;/span&gt;&lt;/div&gt;</span>';
+  // Store span-only raw code in array for clean copy
+  var spanRaw='<span class="animate__animated '+animClasses+'" style="display:inline-block;color:'+color+';font-weight:900;font-size:14px;letter-spacing:2px;">'+txt+'</span>';
+  var idx=rawCodes.length;
+  rawCodes.push(spanRaw);
+
+  var hl='<span class="ht">&lt;span</span> <span class="ha">class</span>=<span class="hv">"animate__animated <span class="hn">'+esc(animClasses)+'"</span></span> <span class="ha">style</span>=<span class="hv">"display:inline-block;color:<span class="hk">'+color+'</span>;font-weight:900;font-size:14px;letter-spacing:2px;"</span><span class="ht">&gt;</span>'+esc(txt)+'<span class="ht">&lt;/span&gt;</span>';
   var shortName=animClasses.split(' ')[0].replace('animate__','');
   return '<div class="card">'
     +'<div class="demo '+cc+'">'
@@ -98,8 +111,8 @@ function buildCard(cc,animClasses,zh,desc,use,bg,color,txt){
       +'</div>'
     +'</div>'
     +'<div class="code-wrap">'
-      +'<button class="copy-btn" onclick="doCopy(this)">複製</button>'
-      +'<pre data-code="'+raw.replace(/"/g,'&quot;')+'">'+hl+'</pre>'
+      +'<button class="copy-btn" data-idx="'+idx+'" onclick="doCopy(this)">複製</button>'
+      +'<pre>'+hl+'</pre>'
     +'</div>'
     +'</div>';
 }
