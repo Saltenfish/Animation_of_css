@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animate.css 全效果展示</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0a0a0f;font-family:'Courier New',monospace;color:#fff;padding:24px 16px;}
+h1{text-align:center;font-size:22px;letter-spacing:6px;text-transform:uppercase;margin-bottom:4px;}
+.sub{text-align:center;font-size:11px;letter-spacing:3px;color:#444;margin-bottom:32px;}
+.cat{margin-bottom:32px;}
+.cat-title{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#555;margin-bottom:10px;padding-left:10px;border-left:2px solid #333;}
+
+/* 2-col on desktop, 1-col on mobile */
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;align-items:stretch;min-width:0;}
+@media(max-width:680px){.row{grid-template-columns:1fr;}}
+
+/* Left: info + live preview */
+.left-panel{border-radius:4px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-height:120px;min-width:0;overflow:hidden;}
+.anim-name{font-size:13px;font-weight:700;letter-spacing:1.5px;}
+.anim-zh{font-size:10px;opacity:.7;letter-spacing:1px;}
+.anim-desc{font-size:10px;opacity:.55;line-height:1.5;}
+.anim-use{font-size:9px;opacity:.4;letter-spacing:.5px;}
+.preview-area{margin-top:6px;border-radius:3px;padding:6px 8px;text-align:center;overflow:hidden;}
+.preview-area span{display:inline-block;font-family:sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;max-width:100%;word-break:break-word;}
+
+/* Right: code box — must NOT grow beyond its grid cell */
+.code-wrap{border-radius:4px;background:#0e0e16;border:1px solid #1e1e2e;padding:12px;position:relative;min-width:0;display:flex;flex-direction:column;justify-content:center;}
+/* The key fix: pre stays inside its column and scrolls horizontally */
+pre{font-family:'Courier New',monospace;font-size:10px;line-height:1.7;white-space:nowrap;overflow-x:auto;width:100%;padding-bottom:4px;padding-right:52px;scrollbar-width:thin;scrollbar-color:#252535 #0e0e16;}
+pre::-webkit-scrollbar{height:3px;}
+pre::-webkit-scrollbar-track{background:#0e0e16;}
+pre::-webkit-scrollbar-thumb{background:#252535;border-radius:2px;}
+
+.copy-btn{position:absolute;top:8px;right:8px;background:#1a1a2a;border:1px solid #2e2e4e;border-radius:3px;color:#666;font-family:'Courier New',monospace;font-size:9px;letter-spacing:1px;padding:4px 8px;cursor:pointer;z-index:10;white-space:nowrap;transition:all .15s;}
+.copy-btn:hover{background:#2a2a3a;color:#aaa;}
+.copy-btn.ok{color:#55efc4;border-color:#55efc4;}
+
+/* syntax highlight */
+.ht{color:#74b9ff;}.ha{color:#fd79a8;}.hv{color:#a8ff78;}.hn{color:#fdcb6e;}.hk{color:#ff9f7f;}
+
+/* card colours */
+.c1{background:#1a0a2e;color:#c77dff;border:1px solid #3d1a6e;}
+.c2{background:#0d1f2d;color:#4ecdc4;border:1px solid #1a4a5a;}
+.c3{background:#1a0d00;color:#ff9500;border:1px solid #4a2800;}
+.c4{background:#001a0d;color:#2ecc71;border:1px solid #004d1a;}
+.c5{background:#1a0a0a;color:#ff6b6b;border:1px solid #4a1a1a;}
+.c6{background:#0a0a1a;color:#74b9ff;border:1px solid #1a1a4a;}
+.c7{background:#1a1a0a;color:#fdcb6e;border:1px solid #4a4a1a;}
+.c8{background:#1a0a14;color:#fd79a8;border:1px solid #4a1a35;}
+.c9{background:#0d1a1a;color:#00cec9;border:1px solid #1a4a4a;}
+.c10{background:#1a140a;color:#e17055;border:1px solid #4a3a1a;}
+.c11{background:#0a1a14;color:#55efc4;border:1px solid #1a4a35;}
+.c12{background:#14001a;color:#a29bfe;border:1px solid #38004a;}
+
+.footer{text-align:center;margin-top:28px;font-size:10px;letter-spacing:3px;color:#2a2a2a;}
+</style>
+</head>
+<body>
+
+<h1>Animate.css</h1>
+<p class="sub">全動畫效果展示 · v4.1.1</p>
+
+<script>
+var CDN='https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
+
+function doCopy(btn){
+  var raw=btn.parentElement.querySelector('pre').getAttribute('data-code');
+  function ok(){btn.textContent='✓ 已複製';btn.classList.add('ok');setTimeout(function(){btn.textContent='複製';btn.classList.remove('ok');},1800);}
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(raw).then(ok).catch(function(){fb(raw,ok);});
+  }else{fb(raw,ok);}
+}
+function fb(text,ok){
+  var ta=document.createElement('textarea');
+  ta.value=text;ta.style.cssText='position:fixed;left:-9999px;top:-9999px;opacity:0;';
+  document.body.appendChild(ta);ta.focus();ta.select();
+  try{document.execCommand('copy');ok();}catch(e){}
+  document.body.removeChild(ta);
+}
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function buildRow(cc,animClasses,zh,desc,use,bg,color,txt){
+  var raw='<link rel="stylesheet" href="'+CDN+'"/><div style="background:'+bg+';padding:6px 0;text-align:center;font-family:sans-serif;"><span class="animate__animated '+animClasses+'" style="display:inline-block;color:'+color+';font-weight:900;font-size:14px;letter-spacing:2px;">'+txt+'</span></div>';
+  var hl='<span class="ht">&lt;link</span> <span class="ha">rel</span>=<span class="hv">"stylesheet"</span> <span class="ha">href</span>=<span class="hv">"'+esc(CDN)+'"</span><span class="ht">/&gt;&lt;div</span> <span class="ha">style</span>=<span class="hv">"background:<span class="hk">'+bg+'</span>;padding:6px 0;text-align:center;font-family:sans-serif;"</span><span class="ht">&gt;&lt;span</span> <span class="ha">class</span>=<span class="hv">"animate__animated <span class="hn">'+esc(animClasses)+'"</span></span> <span class="ha">style</span>=<span class="hv">"display:inline-block;color:<span class="hk">'+color+'</span>;font-weight:900;font-size:14px;letter-spacing:2px;"</span><span class="ht">&gt;</span>'+esc(txt)+'<span class="ht">&lt;/span&gt;&lt;/div&gt;</span>';
+  var shortName=animClasses.split(' ')[0].replace('animate__','');
+  return '<div class="row">'
+    +'<div class="left-panel '+cc+'">'
+      +'<div class="anim-name">'+shortName+'</div>'
+      +'<div class="anim-zh">'+zh+'</div>'
+      +'<div class="anim-desc">'+desc+'</div>'
+      +'<div class="anim-use">用法：'+use+'</div>'
+      +'<div class="preview-area" style="background:'+bg+';">'
+        +'<span class="animate__animated '+animClasses+'" style="color:'+color+';font-weight:900;font-size:13px;letter-spacing:2px;">'+txt+'</span>'
+      +'</div>'
+    +'</div>'
+    +'<div class="code-wrap">'
+      +'<button class="copy-btn" onclick="doCopy(this)">複製</button>'
+      +'<pre data-code="'+raw.replace(/"/g,'&quot;')+'">'+hl+'</pre>'
+    +'</div>'
+    +'</div>';
+}
+
+var groups=[
+  {cat:'Attention Seekers · 注意力吸引',cc:'c1',e:[
+    ['animate__bounce animate__infinite','彈跳','元素上下彈跳循環','CTA 按鈕、下滑引導','#1a0a2e','#c77dff','↓ 向下捲動查看更多'],
+    ['animate__flash animate__infinite animate__slower','閃爍','透明度快速交替閃爍','警示訊息、緊急通知','#1a0a2e','#ff4444','⚠ 系統維護中'],
+    ['animate__pulse animate__infinite animate__slow','脈衝','輕微縮放如心跳脈動','線上狀態、直播標記','#1a0a2e','#c77dff','● LIVE 直播中'],
+    ['animate__rubberBand animate__infinite animate__slower','橡皮筋','拉伸後回彈彈性形變','按鈕互動回饋、遊戲 UI','#1a0a2e','#c77dff','點擊試試看！'],
+    ['animate__shakeX animate__infinite animate__slow','水平抖動','水平快速左右抖動','表單錯誤、操作被拒絕','#1a0a2e','#ff6b6b','✗ 帳號或密碼錯誤'],
+    ['animate__shakeY animate__infinite animate__slow','垂直抖動','垂直快速上下抖動','提示注意特定欄位','#1a0a2e','#ff9500','↑ 請填寫此必填欄位'],
+    ['animate__headShake animate__infinite animate__slower','搖頭','模擬搖頭動作微幅搖擺','否定回應、不允許操作','#1a0a2e','#c77dff','此功能尚未開放'],
+    ['animate__swing animate__infinite animate__slower','擺盪','以頂部為軸左右擺盪','圖示懸停、通知鈴鐺','#1a0a2e','#c77dff','🔔 你有新消息'],
+    ['animate__tada animate__infinite animate__slower','歡呼','縮放加旋轉的慶祝感','任務完成、獎勵解鎖','#1a0a2e','#fdcb6e','🎉 購買成功！'],
+    ['animate__wobble animate__infinite animate__slower','搖晃','左右大幅度搖擺晃動','趣味提醒、引導操作','#1a0a2e','#c77dff','← 試試左右滑動'],
+    ['animate__jello animate__infinite animate__slower','果凍','扭曲變形如果凍顫抖','點擊回饋、遊戲物件','#1a0a2e','#c77dff','Q 彈！'],
+    ['animate__heartBeat animate__infinite animate__slow','心跳','以心跳節奏縮放兩下','愛心按鈕、收藏功能','#1a0a2e','#ff6b8a','❤ 加入最愛'],
+  ]},
+  {cat:'Back Entrances · 後退進場',cc:'c2',e:[
+    ['animate__backInDown animate__infinite animate__slower','從上縮放飛入','從遠端縮小由上飛入放大','頁面標題、Hero 進場','#0d1f2d','#4ecdc4','歡迎回來！'],
+    ['animate__backInLeft animate__infinite animate__slower','從左縮放飛入','從遠端縮小由左飛入放大','側欄展開、左側導覽','#0d1f2d','#4ecdc4','← 選單展開'],
+    ['animate__backInRight animate__infinite animate__slower','從右縮放飛入','從遠端縮小由右飛入放大','通知面板、右側抽屜','#0d1f2d','#4ecdc4','你有 3 則新通知'],
+    ['animate__backInUp animate__infinite animate__slower','從下縮放飛入','從遠端縮小由下飛入放大','底部工具列、Toast','#0d1f2d','#4ecdc4','↑ 已儲存變更'],
+  ]},
+  {cat:'Back Exits · 後退離場',cc:'c3',e:[
+    ['animate__backOutDown animate__infinite animate__slower','縮小向下退出','縮小並向下退出畫面','關閉卡片、收起面板','#1a0d00','#ff9500','正在關閉…'],
+    ['animate__backOutLeft animate__infinite animate__slower','縮小向左退出','縮小並向左退出畫面','返回上一頁過場','#1a0d00','#ff9500','← 返回'],
+    ['animate__backOutRight animate__infinite animate__slower','縮小向右退出','縮小並向右退出畫面','前往下一頁過場','#1a0d00','#ff9500','繼續 →'],
+    ['animate__backOutUp animate__infinite animate__slower','縮小向上退出','縮小並向上退出畫面','關閉 Modal、選單','#1a0d00','#ff9500','✕ 關閉視窗'],
+  ]},
+  {cat:'Bouncing Entrances · 彈跳進場',cc:'c4',e:[
+    ['animate__bounceIn animate__infinite animate__slower','彈跳進場','從中心縮放彈跳出現','Pop-up 視窗、徽章','#001a0d','#2ecc71','🔔 限時優惠！'],
+    ['animate__bounceInDown animate__infinite animate__slower','從上彈入','從上方彈跳落下進場','下拉選單、頂部通知','#001a0d','#2ecc71','↓ 最新公告'],
+    ['animate__bounceInLeft animate__infinite animate__slower','從左彈入','從左方彈跳滑入進場','側邊欄、步驟引導','#001a0d','#2ecc71','← 第一步：註冊帳號'],
+    ['animate__bounceInRight animate__infinite animate__slower','從右彈入','從右方彈跳滑入進場','購物車面板、說明欄','#001a0d','#2ecc71','購物車已更新 →'],
+    ['animate__bounceInUp animate__infinite animate__slower','從下彈入','從下方彈跳升起進場','底部 Sheet、Snackbar','#001a0d','#2ecc71','↑ 操作成功'],
+  ]},
+  {cat:'Bouncing Exits · 彈跳離場',cc:'c5',e:[
+    ['animate__bounceOut animate__infinite animate__slower','彈跳消失','縮小彈跳後消失','關閉通知、移除標籤','#1a0a0a','#ff6b6b','通知已讀取'],
+    ['animate__bounceOutDown animate__infinite animate__slower','向下彈出','向下彈跳退出畫面','收起底部面板','#1a0a0a','#ff6b6b','↓ 收起'],
+    ['animate__bounceOutLeft animate__infinite animate__slower','向左彈出','向左彈跳退出畫面','左滑刪除項目','#1a0a0a','#ff6b6b','← 已刪除'],
+    ['animate__bounceOutRight animate__infinite animate__slower','向右彈出','向右彈跳退出畫面','右滑完成任務','#1a0a0a','#ff6b6b','✓ 已完成 →'],
+    ['animate__bounceOutUp animate__infinite animate__slower','向上彈出','向上彈跳退出畫面','送出表單後消失','#1a0a0a','#ff6b6b','↑ 表單送出成功'],
+  ]},
+  {cat:'Fading Entrances · 淡入進場',cc:'c6',e:[
+    ['animate__fadeIn animate__infinite animate__slower','淡入','透明度從 0 漸變為 1','頁面載入、圖片顯示','#0a0a1a','#74b9ff','頁面載入完成'],
+    ['animate__fadeInDown animate__infinite animate__slower','從上淡入','從上方位移並淡入','導覽列、頁首進場','#0a0a1a','#74b9ff','▼ 導覽列進場'],
+    ['animate__fadeInDownBig animate__infinite animate__slower','從上大幅淡入','從遠上方大幅位移淡入','全版 Hero 大標題','#0a0a1a','#74b9ff','我們改變世界的方式'],
+    ['animate__fadeInLeft animate__infinite animate__slower','從左淡入','從左方位移並淡入','左側說明文字','#0a0a1a','#74b9ff','← 創新設計理念'],
+    ['animate__fadeInLeftBig animate__infinite animate__slower','從左大幅淡入','從遠左方大幅位移淡入','全版橫幅左側','#0a0a1a','#74b9ff','← 大幅從左淡入'],
+    ['animate__fadeInRight animate__infinite animate__slower','從右淡入','從右方位移並淡入','右側圖片說明','#0a0a1a','#74b9ff','精彩內容即將呈現 →'],
+    ['animate__fadeInRightBig animate__infinite animate__slower','從右大幅淡入','從遠右方大幅位移淡入','全版橫幅右側','#0a0a1a','#74b9ff','大幅從右淡入 →'],
+    ['animate__fadeInUp animate__infinite animate__slower','從下淡入','從下方位移並淡入','Scroll 觸發進場','#0a0a1a','#74b9ff','↑ 滾動觸發進場'],
+    ['animate__fadeInUpBig animate__infinite animate__slower','從下大幅淡入','從遠下方大幅位移淡入','頁尾內容進場','#0a0a1a','#74b9ff','↑ 頁尾資訊'],
+    ['animate__fadeInTopLeft animate__infinite animate__slower','左上角淡入','從左上角斜向淡入','對話框、卡片進場','#0a0a1a','#74b9ff','↘ 對話框出現'],
+    ['animate__fadeInTopRight animate__infinite animate__slower','右上角淡入','從右上角斜向淡入','工具提示進場','#0a0a1a','#74b9ff','↙ 提示說明'],
+    ['animate__fadeInBottomLeft animate__infinite animate__slower','左下角淡入','從左下角斜向淡入','浮動操作按鈕','#0a0a1a','#74b9ff','↗ 新增項目'],
+    ['animate__fadeInBottomRight animate__infinite animate__slower','右下角淡入','從右下角斜向淡入','客服聊天泡泡','#0a0a1a','#74b9ff','💬 需要協助嗎？'],
+  ]},
+  {cat:'Fading Exits · 淡出離場',cc:'c7',e:[
+    ['animate__fadeOut animate__infinite animate__slower','淡出','透明度從 1 漸變為 0','頁面切換、隱藏元素','#1a1a0a','#fdcb6e','頁面切換中…'],
+    ['animate__fadeOutDown animate__infinite animate__slower','向下淡出','向下位移並淡出','收起下拉選單','#1a1a0a','#fdcb6e','▼ 選單收起'],
+    ['animate__fadeOutDownBig animate__infinite animate__slower','向下大幅淡出','向遠下方大幅位移淡出','全版內容退場','#1a1a0a','#fdcb6e','↓ 頁面退場'],
+    ['animate__fadeOutLeft animate__infinite animate__slower','向左淡出','向左位移並淡出','左滑刪除、返回上頁','#1a1a0a','#fdcb6e','← 返回上一頁'],
+    ['animate__fadeOutLeftBig animate__infinite animate__slower','向左大幅淡出','向遠左方大幅位移淡出','頁面向左切換','#1a1a0a','#fdcb6e','← 頁面切換'],
+    ['animate__fadeOutRight animate__infinite animate__slower','向右淡出','向右位移並淡出','右滑完成、前進','#1a1a0a','#fdcb6e','前往下一頁 →'],
+    ['animate__fadeOutRightBig animate__infinite animate__slower','向右大幅淡出','向遠右方大幅位移淡出','頁面向右切換','#1a1a0a','#fdcb6e','頁面切換 →'],
+    ['animate__fadeOutUp animate__infinite animate__slower','向上淡出','向上位移並淡出','送出表單退場','#1a1a0a','#fdcb6e','↑ 表單已送出'],
+    ['animate__fadeOutUpBig animate__infinite animate__slower','向上大幅淡出','向遠上方大幅位移淡出','頁面向上過場','#1a1a0a','#fdcb6e','↑ 頁面過場'],
+    ['animate__fadeOutTopLeft animate__infinite animate__slower','左上角淡出','向左上角斜向淡出','關閉對話框','#1a1a0a','#fdcb6e','✕ 關閉'],
+    ['animate__fadeOutTopRight animate__infinite animate__slower','右上角淡出','向右上角斜向淡出','關閉工具提示','#1a1a0a','#fdcb6e','提示關閉'],
+    ['animate__fadeOutBottomRight animate__infinite animate__slower','右下角淡出','向右下角斜向淡出','收起浮動按鈕','#1a1a0a','#fdcb6e','收起 ↘'],
+    ['animate__fadeOutBottomLeft animate__infinite animate__slower','左下角淡出','向左下角斜向淡出','收起聊天視窗','#1a1a0a','#fdcb6e','↙ 聊天視窗收起'],
+  ]},
+  {cat:'Flippers · 翻轉效果',cc:'c8',e:[
+    ['animate__flip animate__infinite animate__slower','3D 翻轉','以 Y 軸為中心 3D 翻轉','卡片翻面、資訊揭露','#1a0a14','#fd79a8','正面 ↔ 背面'],
+    ['animate__flipInX animate__infinite animate__slower','X 軸翻入','沿 X 軸從後方翻入','水平卡片進場','#1a0a14','#fd79a8','↕ 翻開查看詳情'],
+    ['animate__flipInY animate__infinite animate__slower','Y 軸翻入','沿 Y 軸從後方翻入','垂直卡片進場','#1a0a14','#fd79a8','↔ 翻開查看詳情'],
+    ['animate__flipOutX animate__infinite animate__slower','X 軸翻出','沿 X 軸向後翻轉退場','卡片翻走退場','#1a0a14','#fd79a8','↕ 翻頁離開'],
+    ['animate__flipOutY animate__infinite animate__slower','Y 軸翻出','沿 Y 軸向後翻轉退場','垂直翻轉退場','#1a0a14','#fd79a8','↔ 翻頁離開'],
+  ]},
+  {cat:'Lightspeed · 光速滑動',cc:'c9',e:[
+    ['animate__lightSpeedInRight animate__infinite animate__slower','從右光速進場','帶斜切扭曲效果高速從右滑入','Breaking News 條目','#0d1a1a','#00cec9','⚡ 最新消息：版本更新上線'],
+    ['animate__lightSpeedInLeft animate__infinite animate__slower','從左光速進場','帶斜切扭曲效果高速從左滑入','頂部公告條','#0d1a1a','#00cec9','⚡ 公告：服務升級完成'],
+    ['animate__lightSpeedOutRight animate__infinite animate__slower','向右光速退場','帶斜切扭曲效果高速向右退出','通知自動消失','#0d1a1a','#00cec9','通知已讀，正在關閉 ⚡'],
+    ['animate__lightSpeedOutLeft animate__infinite animate__slower','向左光速退場','帶斜切扭曲效果高速向左退出','廣告條退場','#0d1a1a','#00cec9','⚡ 廣告結束，返回內容'],
+  ]},
+  {cat:'Rotating Entrances · 旋轉進場',cc:'c10',e:[
+    ['animate__rotateIn animate__infinite animate__slower','旋轉進場','從斜角旋轉縮放進入','Logo 動畫、圖示','#1a140a','#e17055','✦ 品牌標誌登場'],
+    ['animate__rotateInDownLeft animate__infinite animate__slower','左上鉸鏈旋入','從左上以鉸鏈方式旋入','展開選單、面板','#1a140a','#e17055','↷ 選單展開'],
+    ['animate__rotateInDownRight animate__infinite animate__slower','右上鉸鏈旋入','從右上以鉸鏈方式旋入','卡片翻入效果','#1a140a','#e17055','↶ 卡片翻開'],
+    ['animate__rotateInUpLeft animate__infinite animate__slower','左下鉸鏈旋入','從左下以鉸鏈方式旋入','抽屜式選單展開','#1a140a','#e17055','↷ 抽屜打開'],
+    ['animate__rotateInUpRight animate__infinite animate__slower','右下鉸鏈旋入','從右下以鉸鏈方式旋入','右下角元素進場','#1a140a','#e17055','↶ 浮動按鈕出現'],
+  ]},
+  {cat:'Rotating Exits · 旋轉離場',cc:'c11',e:[
+    ['animate__rotateOut animate__infinite animate__slower','旋轉離場','元素旋轉縮放消失','關閉圖示、刪除','#0a1a14','#55efc4','✕ 旋轉關閉'],
+    ['animate__rotateOutDownLeft animate__infinite animate__slower','向左下鉸鏈旋出','向左下以鉸鏈方式旋出','收起選單、面板','#0a1a14','#55efc4','↶ 選單收起'],
+    ['animate__rotateOutDownRight animate__infinite animate__slower','向右下鉸鏈旋出','向右下以鉸鏈方式旋出','卡片翻出退場','#0a1a14','#55efc4','↷ 卡片翻走'],
+    ['animate__rotateOutUpLeft animate__infinite animate__slower','向左上鉸鏈旋出','向左上以鉸鏈方式旋出','收起抽屜選單','#0a1a14','#55efc4','↶ 抽屜關閉'],
+    ['animate__rotateOutUpRight animate__infinite animate__slower','向右上鉸鏈旋出','向右上以鉸鏈方式旋出','右下角元素退場','#0a1a14','#55efc4','↷ 浮動按鈕收起'],
+  ]},
+  {cat:'Specials · 特殊效果',cc:'c12',e:[
+    ['animate__hinge animate__infinite animate__slower','鉸鏈墜落','從固定點鬆脫模擬物理墜落','戲劇性退場、移除','#14001a','#a29bfe','視窗即將關閉…'],
+    ['animate__jackInTheBox animate__infinite animate__slower','彈出盒子','從下方旋轉彈出如玩具盒','驚喜揭露、彩蛋','#14001a','#a29bfe','🎁 新功能上線！'],
+    ['animate__rollIn animate__infinite animate__slower','滾動進場','旋轉滾動進入畫面','趣味進場、遊戲元素','#14001a','#a29bfe','◎ 滾入登場'],
+    ['animate__rollOut animate__infinite animate__slower','滾動離場','旋轉滾動退出畫面','趣味退場、遊戲元素','#14001a','#a29bfe','◎ 滾出退場'],
+  ]},
+  {cat:'Zooming Entrances · 縮放進場',cc:'c2',e:[
+    ['animate__zoomIn animate__infinite animate__slower','縮放進場','從小到大縮放出現','Modal、Pop-up 開啟','#0d1f2d','#4ecdc4','◎ 視窗開啟'],
+    ['animate__zoomInDown animate__infinite animate__slower','從上縮放飛入','從上方縮放飛入','下拉提示、頂部浮層','#0d1f2d','#4ecdc4','↓ 下拉選項展開'],
+    ['animate__zoomInLeft animate__infinite animate__slower','從左縮放飛入','從左方縮放飛入','左側面板進場','#0d1f2d','#4ecdc4','← 篩選器展開'],
+    ['animate__zoomInRight animate__infinite animate__slower','從右縮放飛入','從右方縮放飛入','右側面板進場','#0d1f2d','#4ecdc4','購物車詳情 →'],
+    ['animate__zoomInUp animate__infinite animate__slower','從下縮放飛入','從下方縮放飛入','底部 Sheet 進場','#0d1f2d','#4ecdc4','↑ 底部選單出現'],
+  ]},
+  {cat:'Zooming Exits · 縮放離場',cc:'c5',e:[
+    ['animate__zoomOut animate__infinite animate__slower','縮放消失','元素縮小消失','關閉 Modal 退場','#1a0a0a','#ff6b6b','◎ 視窗關閉'],
+    ['animate__zoomOutDown animate__infinite animate__slower','向下縮放退出','向下縮小退出','下方面板收起','#1a0a0a','#ff6b6b','↓ 選項收起'],
+    ['animate__zoomOutLeft animate__infinite animate__slower','向左縮放退出','向左縮小退出','左側面板收起','#1a0a0a','#ff6b6b','← 篩選器收起'],
+    ['animate__zoomOutRight animate__infinite animate__slower','向右縮放退出','向右縮小退出','右側面板收起','#1a0a0a','#ff6b6b','購物車收起 →'],
+    ['animate__zoomOutUp animate__infinite animate__slower','向上縮放退出','向上縮小退出','送出後收起浮層','#1a0a0a','#ff6b6b','↑ 提交成功，關閉'],
+  ]},
+  {cat:'Sliding Entrances · 滑動進場',cc:'c4',e:[
+    ['animate__slideInDown animate__infinite animate__slower','從上滑入','從上方完全滑入，無彈跳','固定頂部導覽進場','#001a0d','#2ecc71','▼ 頂部導覽列出現'],
+    ['animate__slideInLeft animate__infinite animate__slower','從左滑入','從左方完全滑入','左側抽屜開啟','#001a0d','#2ecc71','← 側邊選單展開'],
+    ['animate__slideInRight animate__infinite animate__slower','從右滑入','從右方完全滑入','右側抽屜開啟','#001a0d','#2ecc71','通知面板展開 →'],
+    ['animate__slideInUp animate__infinite animate__slower','從下滑入','從下方完全滑入','底部 Sheet 拉起','#001a0d','#2ecc71','↑ 底部操作列'],
+  ]},
+  {cat:'Sliding Exits · 滑動離場',cc:'c3',e:[
+    ['animate__slideOutDown animate__infinite animate__slower','向下滑出','向下完全滑出畫面','收起頂部通知條','#1a0d00','#ff9500','▼ 通知條收起'],
+    ['animate__slideOutLeft animate__infinite animate__slower','向左滑出','向左完全滑出畫面','關閉左側抽屜','#1a0d00','#ff9500','← 側邊選單關閉'],
+    ['animate__slideOutRight animate__infinite animate__slower','向右滑出','向右完全滑出畫面','關閉右側抽屜','#1a0d00','#ff9500','通知面板關閉 →'],
+    ['animate__slideOutUp animate__infinite animate__slower','向上滑出','向上完全滑出畫面','收起底部 Sheet','#1a0d00','#ff9500','↑ 底部列收起'],
+  ]},
+];
+
+var html='';
+groups.forEach(function(g){
+  html+='<div class="cat"><div class="cat-title">▸ '+g.cat+'</div>';
+  g.e.forEach(function(e){html+=buildRow(g.cc,e[0],e[1],e[2],e[3],e[4],e[5],e[6]);});
+  html+='</div>';
+});
+document.write(html);
+</script>
+
+<div class="footer">ANIMATE.CSS v4.1.1 · 77 種動畫</div>
+</body>
+</html>
